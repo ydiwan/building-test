@@ -1,0 +1,9 @@
+{
+  // Building-master Zenoh router: the concentrator that all floor routers connect
+  // up to, and the top of the tree for now. A central/global router connects in
+  // later (add it to connect/endpoints, or override). multicast off.
+  // listen on IPv4 ANY: the default tcp/[::]:7447 CRASHES on IPv4-only Pis.
+  mode: "router",
+  listen: { endpoints: ["tcp/0.0.0.0:7447"] },
+  scouting: { multicast: { enabled: false }, gossip: { enabled: true } },
+}

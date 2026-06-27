@@ -13,7 +13,7 @@ USER_NAME="${SUDO_USER:-$USER}"
 
 echo "== [1/5] apt packages =="
 sudo apt-get update
-sudo apt-get install -y python3-pip python3-smbus i2c-tools python3-gpiozero
+sudo apt-get install -y python3-pip python3-smbus i2c-tools python3-gpiozero ros-jazzy-rmw-zenoh-cpp
 # GPIO backend for gpiozero (PIR), works on Pi 4 + Pi 5. Prefer apt, fall back to pip.
 sudo apt-get install -y python3-lgpio || sudo python3 -m pip install --break-system-packages lgpio
 

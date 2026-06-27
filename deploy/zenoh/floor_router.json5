@@ -1,0 +1,10 @@
+{
+  // Per-floor-Pi Zenoh router. Local ROS nodes connect here (localhost); this
+  // router forwards UP to the building master. multicast off => strict hierarchy.
+  // The upstream master endpoint is injected at startup via ZENOH_CONFIG_OVERRIDE
+  // (connect/endpoints) by deploy/run_floor.sh, so this file stays host-agnostic.
+  // listen on IPv4 ANY: the default tcp/[::]:7447 CRASHES on IPv4-only Pis.
+  mode: "router",
+  listen: { endpoints: ["tcp/0.0.0.0:7447"] },
+  scouting: { multicast: { enabled: false }, gossip: { enabled: true } },
+}
