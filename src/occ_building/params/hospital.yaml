@@ -15,6 +15,12 @@
     led_count: 4
     window_count: 9
 
+    # human-readable per-sensor labels (by index; appear as `location` in telemetry).
+    # Length should match the counts above; missing entries fall back to "N/A".
+    aht20_locations: ["room_1", "room_2", "room_3", "room_4"]
+    wattmeter_locations: ["main"]
+    pir_locations: ["hallway"]
+
     # window presets (degrees) + smooth sweep speed
     window_preset_closed: 90
     window_preset_open_in: 170

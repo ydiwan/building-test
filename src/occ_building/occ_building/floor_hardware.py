@@ -22,6 +22,7 @@ from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile
 
+from rcl_interfaces.msg import ParameterDescriptor
 from std_msgs.msg import Header
 
 from occ_interfaces.msg import (
@@ -38,6 +39,7 @@ LATCHED = QoSProfile(
 )
 
 LIGHTING_MODES = ('manual', 'motion_auto', 'off')
+_STR_ARRAY = ParameterDescriptor(dynamic_typing=True)
 
 
 class FloorHardware(Node):
@@ -64,6 +66,10 @@ class FloorHardware(Node):
         self.declare_parameter('lighting_on_brightness', 0.8)
         self.declare_parameter('lighting_hold_time', 10.0)   # X seconds
         self.declare_parameter('lighting_fade_time', 3.0)    # Y seconds
+        # human-readable per-sensor labels (by index); empty -> "N/A"
+        self.declare_parameter('aht20_locations', None, _STR_ARRAY)
+        self.declare_parameter('wattmeter_locations', None, _STR_ARRAY)
+        self.declare_parameter('pir_locations', None, _STR_ARRAY)
 
         self._driver = None
         self._sample_timer = None
@@ -107,6 +113,10 @@ class FloorHardware(Node):
         self._on_brightness = float(gp('lighting_on_brightness').value)
         self._hold_time = float(gp('lighting_hold_time').value)
         self._fade_time = float(gp('lighting_fade_time').value)
+
+        self._aht20_loc = list(gp('aht20_locations').value or [])
+        self._watt_loc = list(gp('wattmeter_locations').value or [])
+        self._pir_loc = list(gp('pir_locations').value or [])
 
         self._driver = self._make_driver(gp('driver').value, dict(
             aht20=gp('aht20_count').value,
@@ -174,25 +184,29 @@ class FloorHardware(Node):
         h.frame_id = self._frame_id
         return h
 
+    @staticmethod
+    def _loc(labels, i, fallback='N/A'):
+        return labels[i] if 0 <= i < len(labels) else fallback
+
     def _sample(self):
         env = EnvironmentState(header=self._header())
         env.sensors = [
-            Aht20Status(location=r.location, idx=r.idx,
+            Aht20Status(location=self._loc(self._aht20_loc, r.idx, r.location), idx=r.idx,
                         temperature=r.temperature, relative_humidity=r.relative_humidity)
             for r in self._driver.read_environment()]
         self._env_pub.publish(env)
 
         pw = PowerState(header=self._header())
         pw.sensors = [
-            WattmeterStatus(location=r.location, idx=r.idx,
+            WattmeterStatus(location=self._loc(self._watt_loc, r.idx, r.location), idx=r.idx,
                             shunt_voltage_mv=r.shunt_voltage_mv, bus_voltage_v=r.bus_voltage_v,
                             current_ma=r.current_ma, power_mw=r.power_mw)
             for r in self._driver.read_power()]
         self._pow_pub.publish(pw)
 
         mo = MotionState(header=self._header())
-        mo.sensors = [PirStatus(location=r.location, pin=r.pin, state=r.state)
-                      for r in self._driver.read_motion()]
+        mo.sensors = [PirStatus(location=self._loc(self._pir_loc, i, r.location), pin=r.pin, state=r.state)
+                      for i, r in enumerate(self._driver.read_motion())]
         self._mot_pub.publish(mo)
 
     # --- actuator control tick (windows + lighting) ------------------------

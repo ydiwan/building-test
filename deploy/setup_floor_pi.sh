@@ -31,8 +31,15 @@ fi
 grep -qx 'i2c-dev' /etc/modules 2>/dev/null || echo 'i2c-dev' | sudo tee -a /etc/modules >/dev/null
 sudo modprobe i2c-dev || true
 
-echo "== [3/5] hardware access groups for '$USER_NAME' =="
-sudo usermod -aG i2c,spi,gpio,dialout "$USER_NAME" || true
+echo "== [3/5] hardware device access (udev -> dialout; Ubuntu has no gpio/spi groups) =="
+sudo tee /etc/udev/rules.d/99-occ-hardware.rules >/dev/null <<'EOF'
+# Grant non-root users in 'dialout' access to GPIO, I2C and SPI character devices.
+KERNEL=="gpiochip[0-9]*", GROUP="dialout", MODE="0660"
+SUBSYSTEM=="i2c-dev", GROUP="dialout", MODE="0660"
+SUBSYSTEM=="spidev", GROUP="dialout", MODE="0660"
+EOF
+sudo udevadm control --reload-rules && sudo udevadm trigger || true
+sudo usermod -aG dialout "$USER_NAME" || true
 
 echo "== [4/5] python hardware drivers (system; PEP668 override) =="
 sudo python3 -m pip install --break-system-packages -r "$REQ"
