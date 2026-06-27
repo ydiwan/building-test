@@ -8,3 +8,6 @@ adafruit-circuitpython-ahtx0
 adafruit-circuitpython-tlc59711
 adafruit-circuitpython-pca9685
 adafruit-circuitpython-motor
+# Blinka's `import board` needs the RPi.GPIO API even for I2C/SPI-only use.
+# rpi-lgpio provides it (lgpio-backed) and works on Pi 4B/Ubuntu. Do NOT also install RPi.GPIO.
+rpi-lgpio
