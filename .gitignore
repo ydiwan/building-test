@@ -35,6 +35,7 @@ htmlcov/
 *.swp
 *.swo
 .DS_Store
+CLAUDE.md
 
 # Local developer environment / setup files
 .ament_cmake_local_hooks/

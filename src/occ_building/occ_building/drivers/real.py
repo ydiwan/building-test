@@ -3,7 +3,7 @@
 Devices on one floor Pi:
   * AHT20 temp/humidity behind TCA9548A I2C mux(es)   (adafruit_tca9548a + adafruit_ahtx0)
   * INA219 wattmeter(s) on I2C                          (vendored .ina219.INA219)
-  * PIR motion on GPIO                                  (pigpio)
+  * PIR motion on GPIO                                  (gpiozero + lgpio)
   * TLC59711 LED driver on SPI                          (adafruit_tlc59711)
   * PCA9685 servo driver on I2C                         (adafruit_pca9685 + adafruit_motor)
 
@@ -22,7 +22,7 @@ import adafruit_ahtx0
 import adafruit_tlc59711
 from adafruit_pca9685 import PCA9685
 from adafruit_motor import servo as _servo
-import pigpio
+from gpiozero import DigitalInputDevice
 
 from .base import Aht20Reading, FloorDriver, PirReading, WattmeterReading
 from .ina219 import INA219
@@ -77,13 +77,14 @@ class RealFloorDriver(FloorDriver):
             ina.linear_cal(1000, 1000)
             self._wattmeters.append(ina)
 
-        # --- PIR motion (pigpio, retriggering with hold delay) ---
-        self._pi = pigpio.pi()
+        # --- PIR motion (gpiozero/lgpio, retriggering with hold delay) ---
+        # gpiozero uses BCM numbering and abstracts Pi 4 vs Pi 5 gpiochips.
         self._pir_pins = list(pir_pins)
         self._motion_delay = max(0, int(motion_delay) - 2)   # 2s hardware hold
         self._pir = {}
+        self._pir_dev = {}
         for pin in self._pir_pins:
-            self._pi.set_mode(pin, pigpio.INPUT)
+            self._pir_dev[pin] = DigitalInputDevice(pin, pull_up=False)
             self._pir[pin] = {'state': False, 'last': 0.0, 'lock': Lock()}
         self._pir_run = True
         for pin in self._pir_pins:
@@ -118,8 +119,9 @@ class RealFloorDriver(FloorDriver):
     # --- PIR background sampling ---
     def _pir_loop(self, pin):
         st = self._pir[pin]
+        dev = self._pir_dev[pin]
         while self._pir_run:
-            if self._pi.read(pin):
+            if dev.value:
                 with st['lock']:
                     st['state'] = True
                     st['last'] = time.time()
@@ -186,7 +188,8 @@ class RealFloorDriver(FloorDriver):
                 self._pca.deinit()
             except Exception:
                 pass
-        try:
-            self._pi.stop()
-        except Exception:
-            pass
+        for dev in self._pir_dev.values():
+            try:
+                dev.close()
+            except Exception:
+                pass

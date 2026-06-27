@@ -11,14 +11,13 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 REQ="$REPO_ROOT/src/occ_building/requirements.txt"
 USER_NAME="${SUDO_USER:-$USER}"
 
-echo "== [1/6] apt packages =="
+echo "== [1/5] apt packages =="
 sudo apt-get update
-sudo apt-get install -y python3-pip python3-smbus i2c-tools pigpio
+sudo apt-get install -y python3-pip python3-smbus i2c-tools python3-gpiozero
+# GPIO backend for gpiozero (PIR), works on Pi 4 + Pi 5. Prefer apt, fall back to pip.
+sudo apt-get install -y python3-lgpio || sudo python3 -m pip install --break-system-packages lgpio
 
-echo "== [2/6] pigpio daemon (PIR) =="
-sudo systemctl enable --now pigpiod
-
-echo "== [3/6] enable I2C + SPI =="
+echo "== [2/5] enable I2C + SPI =="
 # Ubuntu-on-Pi keeps the firmware config here; fall back to Raspberry Pi OS path.
 CONFIG=/boot/firmware/config.txt
 [ -f "$CONFIG" ] || CONFIG=/boot/config.txt
@@ -32,15 +31,15 @@ fi
 grep -qx 'i2c-dev' /etc/modules 2>/dev/null || echo 'i2c-dev' | sudo tee -a /etc/modules >/dev/null
 sudo modprobe i2c-dev || true
 
-echo "== [4/6] hardware access groups for '$USER_NAME' =="
+echo "== [3/5] hardware access groups for '$USER_NAME' =="
 sudo usermod -aG i2c,spi,gpio,dialout "$USER_NAME" || true
 
-echo "== [5/6] python hardware drivers (system; PEP668 override) =="
+echo "== [4/5] python hardware drivers (system; PEP668 override) =="
 sudo python3 -m pip install --break-system-packages -r "$REQ"
 
-echo "== [6/6] sanity =="
+echo "== [5/5] sanity =="
 ls -l /dev/i2c-* 2>/dev/null || echo "   (no /dev/i2c-* yet - appears after reboot)"
-systemctl is-active --quiet pigpiod && echo "   pigpiod: active"
+python3 -c "import gpiozero; print('   gpiozero OK')" 2>/dev/null || echo "   WARN: gpiozero import failed"
 
 echo
 echo "DONE.  >>> REBOOT NOW <<<  (sudo reboot) for I2C/SPI + group membership to apply."
