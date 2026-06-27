@@ -1,0 +1,10 @@
+# Hardware Python deps for occ_building real drivers (Raspberry Pi floor node).
+# NOTE: the vendored INA219 driver imports `smbus`, provided by the apt package
+# python3-smbus (installed by deploy/setup_floor_pi.sh, not pip).
+adafruit-blinka
+adafruit-circuitpython-tca9548a
+adafruit-circuitpython-ahtx0
+adafruit-circuitpython-tlc59711
+adafruit-circuitpython-pca9685
+adafruit-circuitpython-motor
+pigpio

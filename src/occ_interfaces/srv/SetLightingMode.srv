@@ -1,0 +1,6 @@
+# Set this floor's lighting mode (mirrors the traffic-light ChangeMode pattern).
+# Served at <building>/floor_<n>/lighting/set_mode.
+string mode      # "manual" | "motion_auto" | "off"
+---
+bool   success
+string mode      # the mode now in effect

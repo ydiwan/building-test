@@ -1,0 +1,10 @@
+# Set one or more windows by idx (those omitted are left unchanged).
+# Per entry: give a preset `state` ("closed"/"open_in"/"open_out") to move to the
+# configured preset angle, OR set state="custom" (or empty) and supply an explicit `angle`.
+# Windows sweep smoothly to the target. Served at <building>/floor_<n>/windows/set.
+WindowStatus[] windows
+---
+bool      success
+uint8[]   confirmed_idxs       # one per applied window
+int64[]   confirmed_angles     # target angle applied
+string[]  confirmed_states     # resulting state label

@@ -1,0 +1,28 @@
+# Building-level params for the hospital. All floors are identical, so every floor
+# Pi uses this same file; the floor index comes from the launch arg (floor:=N).
+# On a Pi this is the provisioned /etc/occ/active.yaml. /** matches the single node
+# on this host, so the namespaced node name isn't hardcoded.
+/**:
+  ros__parameters:
+    sample_time: 2.0
+    control_period: 0.05
+    driver: real          # 'real' on the Pi; override driver:=mock for off-hardware dev
+
+    # hardware counts
+    aht20_count: 4
+    wattmeter_count: 1
+    pir_pins: [18]
+    led_count: 4
+    window_count: 9
+
+    # window presets (degrees) + smooth sweep speed
+    window_preset_closed: 90
+    window_preset_open_in: 170
+    window_preset_open_out: 10
+    window_sweep_deg_per_sec: 60.0
+
+    # lighting (motion-auto): all values yaml-tunable
+    lighting_mode: manual          # manual | motion_auto | off
+    lighting_on_brightness: 0.8
+    lighting_hold_time: 10.0        # X: seconds lit after last motion
+    lighting_fade_time: 3.0         # Y: seconds to fade to 0

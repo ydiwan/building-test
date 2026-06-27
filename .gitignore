@@ -1,0 +1,40 @@
+# ==============================================================================
+# ROS 2 Workspace Ignore Template
+# ==============================================================================
+
+# Colcon build artifacts
+build/
+install/
+log/
+
+# Legacy Catkin artifacts (if mixing with ROS 1)
+devel/
+logs/
+design/
+.catkin_workspace
+
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# C++ object files and binaries
+*.o
+*.so
+*.a
+*.out
+
+# Editor and System Specific (Best handled via global gitignore, but kept for safety)
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+.DS_Store
+
+# Local developer environment / setup files
+.ament_cmake_local_hooks/
