@@ -28,7 +28,7 @@
     window_sweep_deg_per_sec: 60.0
 
     # lighting (motion-auto): all values yaml-tunable
-    lighting_mode: manual          # manual | motion_auto | off
+    lighting_mode: motion_auto          # manual | motion_auto | off
     lighting_on_brightness: 0.8
     lighting_hold_time: 10.0        # X: seconds lit after last motion
     lighting_fade_time: 3.0         # Y: seconds to fade to 0

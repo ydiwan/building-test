@@ -4,7 +4,7 @@
 #
 #   Usage: ./deploy/run_floor.sh <floor_number>
 #   Override the master host if it isn't 'hospital-master':  OCC_MASTER_HOST=192.168.1.50 ./deploy/run_floor.sh 1
-set -u
+set +u
 FLOOR="${1:?usage: run_floor.sh <floor_number>}"
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 MASTER="${OCC_MASTER_HOST:-hospital-master}"
