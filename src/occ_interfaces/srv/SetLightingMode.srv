@@ -1,0 +1,4 @@
+string mode      # "manual" | "motion_auto" | "off"
+---
+bool   success
+string mode      # the mode now in effect

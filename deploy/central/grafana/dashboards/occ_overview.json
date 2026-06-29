@@ -1,0 +1,78 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "influxdb", "uid": "occ_influxdb" },
+      "fieldConfig": { "defaults": { "unit": "celsius" }, "overrides": [] },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Temperature by location",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "occ_influxdb" },
+          "query": "from(bucket: \"occ\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"building\")\n  |> filter(fn: (r) => r._field == \"temperature\")\n  |> keep(columns: [\"_time\", \"_value\", \"path\", \"location\"])\n  |> group(columns: [\"path\", \"location\"])",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "influxdb", "uid": "occ_influxdb" },
+      "fieldConfig": { "defaults": { "unit": "humidity" }, "overrides": [] },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "title": "Relative humidity by location",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "occ_influxdb" },
+          "query": "from(bucket: \"occ\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"building\")\n  |> filter(fn: (r) => r._field == \"relative_humidity\")\n  |> keep(columns: [\"_time\", \"_value\", \"path\", \"location\"])\n  |> group(columns: [\"path\", \"location\"])",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "influxdb", "uid": "occ_influxdb" },
+      "fieldConfig": { "defaults": { "unit": "watt" }, "overrides": [] },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
+      "id": 3,
+      "title": "Power (mW)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "occ_influxdb" },
+          "query": "from(bucket: \"occ\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"building\")\n  |> filter(fn: (r) => r._field == \"power_mw\")\n  |> keep(columns: [\"_time\", \"_value\", \"path\", \"location\"])\n  |> group(columns: [\"path\", \"location\"])",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "influxdb", "uid": "occ_influxdb" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
+      "id": 4,
+      "title": "Motion state",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "influxdb", "uid": "occ_influxdb" },
+          "query": "from(bucket: \"occ\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"building\")\n  |> filter(fn: (r) => r._field == \"state\")\n  |> keep(columns: [\"_time\", \"_value\", \"path\", \"location\"])\n  |> group(columns: [\"path\", \"location\"])",
+          "refId": "A"
+        }
+      ]
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["occ"],
+  "templating": { "list": [] },
+  "time": { "from": "now-30m", "to": "now" },
+  "timezone": "",
+  "title": "OCC Overview",
+  "uid": "occ-overview",
+  "version": 1
+}

@@ -1,0 +1,9 @@
+# set one or more windows by idx (not included are left unchanged).
+# give a preset `state` ("closed"/"open_in"/"open_out") to move to the
+# configured preset angle, OR set state="custom" (or empty) and give an `angle`.
+WindowStatus[] windows
+---
+bool      success
+uint8[]   confirmed_idxs       # one per applied window
+int64[]   confirmed_angles     # target angle applied
+string[]  confirmed_states     # resulting state label

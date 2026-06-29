@@ -1,0 +1,7 @@
+adafruit-blinka
+adafruit-circuitpython-tca9548a
+adafruit-circuitpython-ahtx0
+adafruit-circuitpython-tlc59711
+adafruit-circuitpython-pca9685
+adafruit-circuitpython-motor
+rpi-lgpio

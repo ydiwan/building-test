@@ -1,0 +1,22 @@
+FROM ros:jazzy-ros-base
+
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ros-jazzy-rmw-zenoh-cpp \
+        python3-pip \
+        python3-colcon-common-extensions \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir --break-system-packages influxdb-client
+
+WORKDIR /ws
+COPY src/occ_interfaces /ws/src/occ_interfaces
+COPY src/occ_central_hub /ws/src/occ_central_hub
+RUN source /opt/ros/jazzy/setup.bash && colcon build --merge-install
+
+COPY deploy/central/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["ros2", "run", "occ_central_hub", "city_sink"]

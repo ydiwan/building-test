@@ -1,0 +1,20 @@
+/**:
+  ros__parameters:
+    sample_time: 2.0
+    control_period: 0.05
+    aht20_count: 4
+    wattmeter_count: 1
+    pir_pins: [18]
+    led_count: 4
+    window_count: 9
+    aht20_locations: ["room_1", "room_2", "room_3", "room_4"]
+    wattmeter_locations: ["main"]
+    pir_locations: ["hallway"]
+    window_preset_closed: 90
+    window_preset_open_in: 170
+    window_preset_open_out: 10
+    window_sweep_deg_per_sec: 60.0
+    lighting_mode: motion_auto # manual, motion_auto, off
+    lighting_on_brightness: 0.8
+    lighting_hold_time: 10.0
+    lighting_fade_time: 3.0

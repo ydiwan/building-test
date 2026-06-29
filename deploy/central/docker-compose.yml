@@ -1,0 +1,67 @@
+# run from this directory:  docker compose --env-file .env up -d --build
+# (copy .env.example -> .env first and set the token/passwords)
+
+services:
+  global-router:
+    image: occ-central:latest
+    build:
+      context: ../..
+      dockerfile: deploy/central/Dockerfile.city_sink
+    command: ["ros2", "run", "rmw_zenoh_cpp", "rmw_zenohd"]
+    environment:
+      ZENOH_ROUTER_CONFIG_URI: /config/global_router.json5
+    volumes:
+      - ./zenoh/global_router.json5:/config/global_router.json5:ro
+    ports:
+      - "7447:7447"        
+    restart: unless-stopped
+
+  city-sink:
+    image: occ-central:latest
+    depends_on:
+      - global-router
+      - influxdb
+    environment:
+      OCC_ZENOH_CONNECT: tcp/global-router:7447
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-occ}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-occ}
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:2.7
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME:-occ}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-occ}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-occ}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    depends_on:
+      - influxdb
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-occ}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-occ}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+
+volumes:
+  influxdb-data:
+  grafana-data:

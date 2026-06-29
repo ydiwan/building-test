@@ -1,0 +1,7 @@
+# Set one or more LED channels by idx (those omitted are left unchanged).
+# Served at <building>/floor_<n>/lighting/set.
+LedStatus[] leds
+---
+bool      success
+uint8[]   confirmed_idxs     # one per applied channel
+float64[] confirmed_values   # one per applied channel
